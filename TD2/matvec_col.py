@@ -16,15 +16,12 @@ u = np.array([i+1. for i in range(dim)])
 
 cols_per_proc = dim // nbp
 local_A = A[:, cols_per_proc*rank:cols_per_proc*(rank+1)]
-
-local_v = A.dot(u)
+local_u = u[cols_per_proc*rank:cols_per_proc*(rank+1)]
+local_v = local_A.dot(local_u)
 
 # Gather the resulting vector v
-if rank == 0:
-    v = np.empty(dim)
-else:
-    v = None
-globCom.Gather(local_v, v, root=0)
+v = np.zeros(dim)
+globCom.Allreduce(local_v, v, op=MPI.SUM)
 
 if rank == 0:
-    print(f"v = {local_v}")
+    print(f"v = {v}")
