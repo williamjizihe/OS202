@@ -15,8 +15,11 @@ A = np.array([[(i+j) % dim+1. for i in range(dim)] for j in range(dim)])
 u = np.array([i+1. for i in range(dim)])
 
 cols_per_proc = dim // nbp
-local_A = A[:, cols_per_proc*rank:cols_per_proc*(rank+1)]
-local_u = u[cols_per_proc*rank:cols_per_proc*(rank+1)]
+start_col = cols_per_proc * rank
+end_col = cols_per_proc * (rank+1) if rank != nbp-1 else dim
+
+local_A = A[:, start_col:end_col]
+local_u = u[start_col:end_col]
 local_v = local_A.dot(local_u)
 
 # Gather the resulting vector v

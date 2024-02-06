@@ -24,7 +24,7 @@ if rank == 0:
     v = np.empty(dim)
 else:
     v = None
-globCom.Allreduce(local_v, v, op=MPI.SUM)
+globCom.Gather(local_v, v, root=0)
 
 if rank == 0:
     print(f"v = {v}")
