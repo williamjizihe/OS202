@@ -56,17 +56,6 @@ scaleX = 3./width
 scaleY = 2.25/height
 convergence = np.empty((width, height), dtype=np.double)
 
-# Calcul de l'ensemble de mandelbrot :
-def calculate_band(start_row, end_row, width, height, scaleX, scaleY, mandelbrot_set):
-    band = np.zeros((end_row - start_row, width), dtype=np.double)
-    for y in range(start_row, end_row):
-        if y >= height:
-            break
-        for x in range(width):
-            c = complex(-2. + scaleX*x, -1.125 + scaleY * y)
-            band[y - start_row, x] = mandelbrot_set.convergence(c, smooth=True)
-    return band
-
 # MPI initialization
 globCom = MPI.COMM_WORLD
 nbp = globCom.size
@@ -77,7 +66,14 @@ start_row = rank * rows_per_process
 end_row = start_row + rows_per_process
 
 deb = time()
-local_band = calculate_band(start_row, end_row, width, height, scaleX, scaleY, mandelbrot_set)
+local_band = np.zeros((end_row - start_row, width), dtype=np.double)
+for y in range(start_row, end_row):
+        if y >= height:
+            break
+        for x in range(width):
+            c = complex(-2. + scaleX*x, -1.125 + scaleY * y)
+            local_band[y - start_row, x] = mandelbrot_set.convergence(c, smooth=True)
+            
 fin = time()
 
 if rank == 0:
