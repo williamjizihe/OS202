@@ -61,18 +61,17 @@ globCom = MPI.COMM_WORLD
 nbp = globCom.size
 rank = globCom.rank
 
-rows_per_process = int(height / nbp) + 1 if height % nbp != 0 else int(height / nbp)
-start_row = rank * rows_per_process
-end_row = start_row + rows_per_process
+rows_per_process = height // nbp if height % nbp == 0 else height // nbp + 1
+start_row, end_row = rank * rows_per_process, (rank+1) * rows_per_process
 
 deb = time()
-local_band = np.zeros((end_row - start_row, width), dtype=np.double)
+local_band = np.zeros((rows_per_process, width), dtype=np.double)
 for y in range(start_row, end_row):
-        if y >= height:
-            break
-        for x in range(width):
-            c = complex(-2. + scaleX*x, -1.125 + scaleY * y)
-            local_band[y - start_row, x] = mandelbrot_set.convergence(c, smooth=True)
+    if y >= height:
+        break
+    for x in range(width):
+        c = complex(-2. + scaleX*x, -1.125 + scaleY * y)
+        local_band[y - start_row, x] = mandelbrot_set.convergence(c, smooth=True)
             
 fin = time()
 
