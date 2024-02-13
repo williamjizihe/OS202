@@ -27,7 +27,7 @@ if rank == 0:
 else:
     v = None
 globCom.Gatherv(local_v, v, root=0)
-v = v[:dim]
 
 if rank == 0:
+    v = v[:dim]
     print(f"v = {v}")
